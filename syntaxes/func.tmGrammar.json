@@ -1,0 +1,224 @@
+{
+	"scopeName": "source.func",
+	"patterns": [{ "include": "#statements" }, { "include": "#expression" }],
+	"repository": {
+	  "expression": {
+		"patterns": [
+			{ "include": "#comment" },
+			{ "include": "#string" },
+			{ "include": "#type-primitive" }
+		]
+	  },
+	  "statements": {
+		  "patterns": [
+			{ "include": "#function-declaration" },
+			{ "include": "#declaration" },
+			{ "include": "#decl-block" }
+		  ]
+	  },
+	  "decl-block": {
+		"name": "meta.block.func",
+		"begin": "\\{",
+		"beginCaptures": {
+			"0": {
+				"name": "punctuation.definition.block.func"
+			}
+		},
+		"end": "\\}",
+		"endCaptures": {
+			"0": {
+				"name": "punctuation.definition.block.func"
+			}
+		},
+		"patterns": [
+			{
+				"include": "#decl-block"
+			}
+		]
+	},
+	  "identifier": {
+		"match": "[[:alnum:]]+",
+		 "name": "variable.other.readwrite.func"
+	  },
+	  "tuple-return": {
+		"match": "\\s*(_|int|cell|slice|builder|tuple|cont)\\s*[,\\)]*",
+		"captures": {
+			"1": {
+				"name": "support.type.primitive.func"
+			}
+	  	},
+		"name": "tuple",
+		"patterns": [
+			{ "include": "#tuple-return" }
+		]
+	  },
+	  "function-body": {
+		  "patterns": [
+			  {
+				"begin": "{",
+				"end": "}",
+				"name": "function.body.func",
+				"patterns": [
+					{ "include": "#declaration" },
+					{ "include": "#decl-block" },
+					{ "include": "#comment" }
+				]
+			  },
+			{ "include": "#asm" }
+		  ]
+	  },
+	  "asm": {
+		"begin": "(asm)(?:\\(.+\\))?",
+		"beginCaptures": {
+			"1": "support.type.primitive.func"
+		},
+		"end": "(?=;)",
+		"name": "support.type.primitive.func",
+		"patterns": [
+			{ "include": "#string" }
+		]
+	  },
+	  "function-declaration": {
+		"patterns": [
+			
+			{
+				"begin": "(?:(_|int|cell|slice|builder|tuple|cont)|.+)(?=\\s+(?:(?>[^0-9^;,()\\s\";][^;,()\\s~\\.\"]+|[^0-9^;,()\\s~\\.\";_])(?<!keywords|go|here))\\s*\\(.*\\).*(?={?))",
+				"beginCaptures": {
+					"1": { "name": "support.type.primitive.func" }
+				},
+				"end": "(?=[};])",
+				"name": "fuck",
+				"patterns": [
+					{ "include": "#tuple-return" },
+					{ "include": "#function-name" },
+					{ "include": "#function-body" }
+				]
+			}
+		]
+	  },
+	  "function-parameters": {
+		"TODO": "add tuple parsing",
+		"match": "(?<=[\\s\\(])(?:(_|int|cell|slice|builder|tuple|cont)\\s+)?((?>[^0-9^;,()\\s~\\.\";][^;,()\\s~\\.\"]+|[^0-9^;,()\\s~\\.\";_])(?<!keywords|go|here))?\\s*(?=[\\),])",
+		"captures": {
+			"1": {
+				"name": "support.type.primitive.func"
+			},
+			"2": {
+				"name": "variable.parameter.func"
+			}
+		},
+		"name": "meta.parameters.func"
+	  },
+	  "function-name": {
+		"begin": "\\s*((?>[^0-9^;,()\\s~\\.\";][^;,()\\s~\\.\"]+|[^0-9^;,()\\s~\\.\";_])(?<!keywords|go|here))\\s*\\(",
+		"beginCaptures": {
+			"1": { "name": "meta.definition.function.func entity.name.function.func" }
+		},
+		"end": "\\)(\\s+impure)?(\\s+(?:inline_ref|inline))?(\\s+method_id(\\((\\d+)\\))?)?\\s*",
+		"endCaptures": {
+			"1": { "name": "storage.modifier.specifier.post-parameters.impure.func" },
+			"2": { "name": "storage.modifier.specifier.post-parameters.inline.func" },
+			"3": { "name": "storage.modifier.specifier.post-parameters.method_id.func" },
+			"4": { "name": "meta.brace.round.func" },
+			"5": { "name": "support.type.primitive.func" }
+		},
+		"name": "meta.function.func",
+		"patterns": [
+			{ "include": "#function-parameters" }
+		]
+	  },
+	  "declaration": {
+		"name": "meta.var.expr.func",
+		"begin": "var[ \t]+",
+		"end": ";",
+		"patterns": [
+			{
+				"begin": "^",
+				"end": "[ \t]*=",
+				"name": "storage.type.func",
+				"patterns": [
+					{ "include": "#identifier" },
+					{
+						"match": " = ",
+						"name": "storage.type.func"
+					},
+					{ "include": "#number-literal" }
+				]
+			}
+		]
+	  },
+	  "type-primitive": {
+		"name": "support.type.primitive.func",
+		"match": "(?<![_$[:alnum:]])(?:(?<=\\.\\.\\.)|(?<!\\.))(int|cell|slice|builder|tuple|cont)(?![_$[:alnum:]])(?:(?=\\.\\.\\.)|(?!\\.))"
+	  },
+	  "number-literal": {
+		"patterns": [
+			{
+				"match": "\\b(?<!\\$)0(?:x|X)[0-9a-fA-F]+\\b(?!\\$)",
+				"name": "constant.numeric.hex.func"
+			},
+			{
+				"match": "\\b(?<!\\$)\\d+\\b(?!\\$)",
+				"name": "constant.numeric.hex.func"
+			}
+		]
+	  },
+	  "string": {
+		"name": "string.quoted.double.func",
+		"begin": "\"",
+		"beginCaptures": {
+			"0": {
+				"name": "punctuation.definition.string.begin.func"
+			}
+		},
+		"end": "(\")|((?:[^\\\\n])$)",
+		"endCaptures": {
+			"1": {
+				"name": "punctuation.definition.string.end.func"
+			},
+			"2": {
+				"name": "invalid.illegal.newline.func"
+			}
+		}
+	},
+	  "comment-block": {
+		"name": "comment.block.func",
+		"begin": "({-)",
+		"beginCaptures": {
+			"1": {
+				"name": "punctuation.definition.comment.func"
+			}
+		},
+		"end": "(-})",
+		"endCaptures": {
+			"0": {
+				"name": "punctuation.definition.comment.func"
+			}
+		},
+		"patterns": [{"include": "#comment-block"}]
+	  },
+	  "comment": {
+		  "patterns": [
+			{
+				"include": "#comment-block"
+			},
+			{
+				"begin": "(^[ \\t]+)?((;;)(?:\\s*(?=\\s|$))?)",
+				"beginCaptures": {
+					"1": {
+						"name": "punctuation.whitespace.comment.leading.func"
+					},
+					"2": {
+						"name": "comment.line.double-slash.func"
+					},
+					"3": {
+						"name": "punctuation.definition.comment.func"
+					}
+				},
+				"end": "(?=$)",
+				"contentName": "comment.line.double-slash.func"
+			}
+		  ]
+	  }
+	}
+  }
